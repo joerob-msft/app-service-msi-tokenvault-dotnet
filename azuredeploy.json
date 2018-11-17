@@ -104,7 +104,7 @@
         },
         {
             "type": "Microsoft.TokenVault/vaults/accessPolicies",
-            "name": "[parameters('webSiteName')]",
+            "name": "[concat(parameters('tokenVaultName'), '/', parameters('webSiteName'))]",
             "apiVersion": "2018-08-01-preview",
             "properties": {
                 "principal": {
@@ -124,7 +124,7 @@
         },
         {
             "type": "Microsoft.TokenVault/vaults/services",
-            "name": "dropbox",
+            "name": "[concat(parameters('tokenVaultName'), '/dropbox')]",
             "apiVersion": "2018-08-01-preview",
             "properties": {
                 "tokenParameters": {},
@@ -145,7 +145,7 @@
         },
         {
             "type": "Microsoft.TokenVault/vaults/services/tokens",
-            "name": "sampleToken",
+            "name": "[concat(parameters('tokenVaultName'), '/dropbox/sampleToken')]",
             "apiVersion": "2018-08-01-preview",
             "properties": {
                 "displayName": "sample token"
