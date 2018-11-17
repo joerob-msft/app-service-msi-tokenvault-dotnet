@@ -97,26 +97,29 @@
             "location": "[resourceGroup().location]",
             "tags": {},
             "properties": {
-                "sku": {
-                    "family": "A",
-                    "name": "Standard"
-                },
-                "tenantId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').tenantId]",
-                "accessPolicies": [
-                    {
-                        "tenantId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').tenantId]",
-                        "objectId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').principalId]",
-                        "permissions": {
-                            "secrets": [
-                                "get"
-                            ]
-                        }
-                    }
-                ],
-                "enabledForDeployment": false
             },
             "dependsOn": [
                 "[concat('Microsoft.Web/sites/', parameters('webSiteName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.TokenVault/vaults/accessPolicies",
+            "name": "[parameters('webSiteName')]",
+            "apiVersion": "2018-08-01-preview",
+            "properties": {
+                "principal": {
+                    "tenantId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').tenantId]",
+                    "objectId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').principalId]"
+                },
+                "permissions": [
+                        "Get",
+                        "List",
+                        "CreateOrUpdate",
+                        "Delete"
+                    ]
+            },
+            "dependsOn": [
+                "[concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'))]"
             ]
         },
         {
@@ -124,7 +127,17 @@
             "name": "dropbox",
             "apiVersion": "2018-08-01-preview",
             "properties": {
-
+                "tokenParameters": {},
+                "authentication": {
+                  "managedIdentityProvider": {
+                    "name": "dropbox"
+                  },
+                  "parameters": {
+                    "clientid": "[parameters('tokenVaultServiceClientId')]",
+                    "clientsecret": "[parameters('tokenVaultServiceClientId')]"
+                  }
+                },
+                "displayName": "App Demo Dropbox App"
             },
             "dependsOn": [
                 "[concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'))]"
@@ -135,7 +148,7 @@
             "name": "sampleToken",
             "apiVersion": "2018-08-01-preview",
             "properties": {
-
+                "displayName": "sample token"
             },
             "dependsOn": [
                 "[concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'), '/services/dropbox')]"
