@@ -8,22 +8,26 @@ namespace WebAppTokenVault.Controllers
 {
     public class HomeController : Controller
     {
+        const string TokenVaultResource = "https://tokenvault.azure-int.net";
+        // static client to have connection pooling
+        private static HttpClient client = new HttpClient();
+
         public async System.Threading.Tasks.Task<ActionResult> Index()
         {
-            AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();            
+            var azureServiceTokenProvider = new AzureServiceTokenProvider();
+
+            // token Url - e.g. "https://tokenvaultname.brazilsouth.tokenvault.azure-int.net/services/dropbox/tokens/tokenname"
+            string tokenResourceUrl = "https://tokenvaultname.brazilsouth.tokenvault.azure-int.net/services/dropbox/tokens/tokenname";
 
             try
             {
-                using (var client = new HttpClient())
-                {                    
-                    string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync("https://tokenvault.azure-int.net");
-                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiToken}");
+                string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenVaultResource);
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiToken}");
 
-                    var response = await client.PostAsync("https://tokenvaultname.brazilsouth.tokenvault.azure-int.net/services/dropbox/tokens/tokenname", null);
-                    var responseString = await response.Content.ReadAsStringAsync();
-                   
-                    ViewBag.Secret = $"Token: {responseString}";
-                }
+                var response = await client.PostAsync(tokenResourceUrl, null);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                ViewBag.Secret = $"Token: {responseString}";
             }
             catch (Exception exp)
             {

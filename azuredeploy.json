@@ -88,7 +88,21 @@
             "properties": {
                 "name": "[parameters('webSiteName')]",
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
-            }
+            },
+            "resources": [
+                {
+                    "apiVersion": "2016-03-01",
+                    "name": "[parameters('webSiteName')]",
+                    "type": "Microsoft.Web/sites/config/appSettings",
+                    "location": "[resourceGroup().location]",
+                    "properties":{
+                        "tokenResourceUrl" : "[reference(resourceId(concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'), '/services/dropbox/sampleToken')), '2015-08-31-PREVIEW').tokenUri]"
+                    },
+                    "dependsOn": [
+                        "[concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'), '/services/dropbox/sampleToken')]"
+                    ]
+                }
+            ]
         },
         {
             "type": "Microsoft.TokenVault/vaults",
