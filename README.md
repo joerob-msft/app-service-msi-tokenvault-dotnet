@@ -4,7 +4,7 @@ platforms: dotnet
 author: joerob-msft
 ---
 
-> Note: The App Service Token Vault feature is in Private Preview, which means it will only be available to you after contacting our team, and completing an onboarding process. Private Preview features like Token Vault are meant for evaulation only, and should not be used in production. This feature may be discontinued at any time without prior notice. 
+> Note: The App Service Token Vault feature is in Private Preview, which means it will only be available to you after contacting our team, and completing an onboarding process. Private Preview features like Token Vault are only meant for gathering feedback from users, and should not be used in production. This feature may be discontinued at any time without prior notice. 
 
 # Use Token Vault from App Service with Managed Service Identity
 
