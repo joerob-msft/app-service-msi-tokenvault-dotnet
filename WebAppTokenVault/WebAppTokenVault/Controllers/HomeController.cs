@@ -3,6 +3,7 @@ using System.Web.Mvc;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Microsoft.Azure.Services.AppAuthentication;
+using System.Configuration;
 
 namespace WebAppTokenVault.Controllers
 {
@@ -17,7 +18,7 @@ namespace WebAppTokenVault.Controllers
             var azureServiceTokenProvider = new AzureServiceTokenProvider();
 
             // token Url - e.g. "https://tokenvaultname.brazilsouth.tokenvault.azure-int.net/services/dropbox/tokens/tokenname"
-            string tokenResourceUrl = "https://tokenvaultname.brazilsouth.tokenvault.azure-int.net/services/dropbox/tokens/tokenname";
+            string tokenResourceUrl = ConfigurationManager.AppSettings["tokenResourceUrl"];
 
             try
             {
