@@ -48,7 +48,7 @@
         "tokenVaultName": {
             "type": "string",
             "metadata": {
-                "description": "Token Vault to be created. Web site will be granted access to this Token Vault."
+                "description": "Token Vault to be created. Web site will be granted access to this Token Vault. Token Vault DNS name should be whitelisted in SAAS OAuth app registration as valid redirect - see value in ARM output TokenVaultRedirectUri."
             }
         },
         "tokenVaultLocation": {
@@ -217,6 +217,13 @@
         "DropBoxLoginLink": {
             "type": "string",
             "value": "[reference(concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'), '/services/dropbox/tokens/sampleToken'), '2018-08-01-preview').loginUri]"
+        },
+        "TokenVaultRedirectUri": {
+            "type": "string", 
+            "value": "[reference(concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName')), '2018-08-01-preview').redirectUrl]", 
+            "metadata":{
+                "description": "This url must be whitelisted as valid redirect Url in the SAAS registration - e.g. https://www.dropbox.com/developers/apps."
+            }
         }
     }
 }
