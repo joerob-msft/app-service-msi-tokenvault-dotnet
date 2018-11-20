@@ -9,6 +9,14 @@
         "description": "Name of the Web App."
       }
     },
+    "hostingPlanName": {
+      "type": "string",
+      "maxLength": 15,
+      "metadata": {
+        "description": "Name of the Web Hosting Plan."
+      },
+      "defaultValue": "VaultWebAppPlan"
+    },
     "skuName": {
       "type": "string",
       "defaultValue": "S1",
@@ -45,7 +53,7 @@
     },
     "tokenVaultLocation": {
       "type": "string",
-      "defaultValue": "brazil south",
+      "defaultValue": "brazilsouth",
       "metadata": {
         "description": "Azure location where the token vault will be deployed."
       }
@@ -57,20 +65,19 @@
       }
     },
     "tokenVaultDropBoxServiceClientSecret": {
-        "type": "string",
+        "type": "securestring",
         "metadata": {
           "description": "Client Secret to add to the Token Vault Service"
         }
       }
   },
-    "variables": {
-        "hostingPlanName": "[concat('hostingplan', uniqueString(resourceGroup().id))]",
-            "identityResourceId" : "[concat(resourceId('Microsoft.Web/sites', parameters('webSiteName')),'/providers/Microsoft.ManagedIdentity/Identities/default')]"
+    "variables": { 
+        "identityResourceId" : "[concat(resourceId('Microsoft.Web/sites', parameters('webSiteName')),'/providers/Microsoft.ManagedIdentity/Identities/default')]"
     },
     "resources": [
         {
             "apiVersion": "2016-03-01",
-            "name": "[variables('hostingPlanName')]",
+            "name": "[parameters('hostingPlanName')]",
             "type": "Microsoft.Web/serverfarms",
             "location": "[parameters('webAppLocation')]",
             "tags": {
@@ -80,8 +87,7 @@
                 "name": "[parameters('skuName')]",
                 "capacity": 1
             },
-            "properties": {
-                "name": "[variables('hostingPlanName')]"
+            "properties": { 
             }
         },
         {
@@ -93,14 +99,14 @@
                 "type": "SystemAssigned"
             },
             "dependsOn": [
-                "[variables('hostingPlanName')]"
+                "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
             ],
             "tags": {
-                "[concat('hidden-related:', resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName')))]": "empty",
+                "[concat('hidden-related:', resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName')))]": "empty",
                 "displayName": "Website"
             },
             "properties": { 
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
             },
             "resources": [
                 {
@@ -109,7 +115,7 @@
                     "type": "config",
                     "location": "[resourceGroup().location]",
                     "properties":{
-                        "tokenResourceUrl" : "test1"
+                        "tokenResourceUrl" : "[reference(concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'), '/services/dropbox/tokens/sampleToken'), '2018-08-01-preview').tokenUri]"
                     },
                     "dependsOn": [ 
                         "[resourceId('Microsoft.Web/Sites', parameters('webSiteName'))]",
@@ -186,5 +192,11 @@
                 }
             ]
         }
-    ]
+    ],
+    "outputs": { 
+        "DropBoxLoginLink": {
+            "type": "string",
+            "value": "[reference(concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'), '/services/dropbox/tokens/sampleToken'), '2018-08-01-preview').loginUri]"
+        }
+    }
 }
