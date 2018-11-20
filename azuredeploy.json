@@ -43,7 +43,13 @@
             "defaultValue": "westus2",
             "metadata": {
                 "description": "Azure location where the web app will be deployed."
-            }
+            },
+            "allowedValues": [
+                "westus2",
+                "westus",
+                "eastus",
+                "eastus2" 
+            ]
         },
         "tokenVaultName": {
             "type": "string",
@@ -56,18 +62,21 @@
             "defaultValue": "brazilsouth",
             "metadata": {
                 "description": "Azure location where the token vault will be deployed."
-            }
+            },
+            "allowedValues": [
+                "brazilsouth" 
+            ]
         },
         "tokenVaultDropboxServiceClientId": {
             "type": "string",
             "metadata": {
-                "description": "Client Id to add to the Token Vault Service"
+                "description": "Client Id to add to the Token Vault Service. Obtain it by creating a new app at https://www.dropbox.com/developers/apps."
             }
         },
         "tokenVaultDropBoxServiceClientSecret": {
             "type": "securestring",
             "metadata": {
-                "description": "Client Secret to add to the Token Vault Service"
+                "description": "Client Secret to add to the Token Vault Service. Obtain it by creating a new app at https://www.dropbox.com/developers/apps"
             }
         },
         "githubUrl": {
