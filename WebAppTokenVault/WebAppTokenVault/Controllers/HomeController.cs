@@ -22,9 +22,10 @@ namespace WebAppTokenVault.Controllers
             try
             {
                 string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenVaultResource);
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiToken}");
+                var request = new HttpRequestMessage(HttpMethod.Post, tokenResourceUrl);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
 
-                var response = await client.PostAsync(tokenResourceUrl, null);
+                var response = await client.SendAsync(request);
                 var responseString = await response.Content.ReadAsStringAsync();
 
                 ViewBag.Secret = $"Token: {responseString}";
