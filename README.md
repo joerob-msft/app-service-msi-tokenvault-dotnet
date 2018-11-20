@@ -56,20 +56,20 @@ The relevant code is in WebAppTokenVault/WebAppTokenVault/Controllers/HomeContro
 ```csharp    
 public async System.Threading.Tasks.Task<ActionResult> Index()
 {
+    // static client to have connection pooling
+    private static HttpClient client = new HttpClient();
     AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();
-
+    
     try
-    {
-        using (var client = new HttpClient())
-        {                    
-            string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync("https://tokenvault.azure-int.net");
-            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiToken}");
+    {               
+        string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync("https://tokenvault.azure-int.net");
+        var request = new HttpRequestMessage(HttpMethod.Post, "https://tokenvaultname.brazilsouth.tokenvault.azure-int.net/services/dropbox/tokens/tokenname");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
 
-            var response = await client.PostAsync("https://tokenvaultname.brazilsouth.tokenvault.azure-int.net/services/dropbox/tokens/tokenname", null);
-            var responseString = await response.Content.ReadAsStringAsync();
-            
-            ViewBag.Secret = $"Token: {responseString}";
-        }
+        var response = await client.SendAsync(request);
+        var responseString = await response.Content.ReadAsStringAsync();
+        
+        ViewBag.Secret = $"Token: {responseString}";
     }
     catch (Exception exp)
     {
