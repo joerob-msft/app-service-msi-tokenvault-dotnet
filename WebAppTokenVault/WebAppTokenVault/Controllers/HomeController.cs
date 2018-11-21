@@ -19,6 +19,7 @@ namespace WebAppTokenVault.Controllers
 
             // token Url - e.g. "https://tokenvaultname.brazilsouth.tokenvault.azure-int.net/services/dropbox/tokens/tokenname"
             string tokenResourceUrl = ConfigurationManager.AppSettings["tokenResourceUrl"];
+            ViewBag.LoginLink = $"{tokenResourceUrl}/login?PostLoginRedirectUrl={this.Request.Url}";
 
             try
             {
