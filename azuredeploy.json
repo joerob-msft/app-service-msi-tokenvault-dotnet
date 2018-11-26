@@ -1,64 +1,102 @@
 {
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-        "contentVersion": "1.0.0.0",
-  "parameters": {
-    "webSiteName": {
-      "type": "string",
-      "maxLength": 15,
-      "metadata": {
-        "description": "Name of the Web App."
-      }
-    },
-    "skuName": {
-      "type": "string",
-      "defaultValue": "F1",
-      "allowedValues": [
-        "F1",
-        "D1",
-        "B1",
-        "B2",
-        "B3",
-        "S1",
-        "S2",
-        "S3",
-        "P1",
-        "P2",
-        "P3",
-        "P4"
-      ],
-      "metadata": {
-        "description": "Describes plan's pricing tier and instance size. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
-      }
-    },
-    "tokenVaultName": {
-      "type": "string",
-      "metadata": {
-        "description": "Token Vault to be created. Web site will be granted access to this Token Vault."
-      }
-    },
-    "tokenVaultServiceClientId": {
-      "type": "string",
-      "metadata": {
-        "description": "Client Id to add to the Token Vault Service"
-      }
-    },
-    "tokenVaultServiceClientSecret": {
-        "type": "string",
-        "metadata": {
-          "description": "Client Secret to add to the Token Vault Service"
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "webSiteName": {
+            "type": "string",
+            "maxLength": 15,
+            "metadata": {
+                "description": "Name of the Web App."
+            }
+        },
+        "hostingPlanName": {
+            "type": "string",
+            "maxLength": 15,
+            "metadata": {
+                "description": "Name of the Web Hosting Plan."
+            },
+            "defaultValue": "VaultWebAppPlan"
+        },
+        "skuName": {
+            "type": "string",
+            "defaultValue": "S1",
+            "allowedValues": [
+                "F1",
+                "D1",
+                "B1",
+                "B2",
+                "B3",
+                "S1",
+                "S2",
+                "S3",
+                "P1",
+                "P2",
+                "P3",
+                "P4"
+            ],
+            "metadata": {
+                "description": "Describes plan's pricing tier and instance size. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
+            }
+        },
+        "webAppLocation": {
+            "type": "string",
+            "defaultValue": "westus2",
+            "metadata": {
+                "description": "Azure location where the web app will be deployed."
+            },
+            "allowedValues": [
+                "westus2",
+                "westus",
+                "eastus",
+                "eastus2" 
+            ]
+        },
+        "tokenVaultName": {
+            "type": "string",
+            "metadata": {
+                "description": "Token Vault to be created. Web site will be granted access to this Token Vault. Token Vault DNS name should be whitelisted in SAAS OAuth app registration as valid redirect - see value in ARM output TokenVaultRedirectUri."
+            }
+        },
+        "tokenVaultLocation": {
+            "type": "string",
+            "defaultValue": "brazilsouth",
+            "metadata": {
+                "description": "Azure location where the token vault will be deployed."
+            },
+            "allowedValues": [
+                "brazilsouth" 
+            ]
+        },
+        "tokenVaultDropboxServiceClientId": {
+            "type": "string",
+            "metadata": {
+                "description": "Client Id to add to the Token Vault Service. Obtain it by creating a new app at https://www.dropbox.com/developers/apps."
+            }
+        },
+        "tokenVaultDropBoxServiceClientSecret": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Client Secret to add to the Token Vault Service. Obtain it by creating a new app at https://www.dropbox.com/developers/apps"
+            }
+        },
+        "githubUrl": {
+            "type": "string",
+            "defaultValue": "https://github.com/galiniliev/app-service-msi-tokenvault-dotnet.git"
+        },
+        "githubBranch": {
+            "type": "string",
+            "defaultValue": "master"
         }
-      }
-  },
+    },
     "variables": {
-        "hostingPlanName": "[concat('hostingplan', uniqueString(resourceGroup().id))]",
-            "identityResourceId" : "[concat(resourceId('Microsoft.Web/sites', parameters('webSiteName')),'/providers/Microsoft.ManagedIdentity/Identities/default')]"
+        "identityResourceId": "[concat(resourceId('Microsoft.Web/sites', parameters('webSiteName')),'/providers/Microsoft.ManagedIdentity/Identities/default')]"
     },
     "resources": [
         {
             "apiVersion": "2016-03-01",
-            "name": "[variables('hostingPlanName')]",
+            "name": "[parameters('hostingPlanName')]",
             "type": "Microsoft.Web/serverfarms",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('webAppLocation')]",
             "tags": {
                 "displayName": "HostingPlan"
             },
@@ -66,93 +104,135 @@
                 "name": "[parameters('skuName')]",
                 "capacity": 1
             },
-            "properties": {
-                "name": "[variables('hostingPlanName')]"
-            }
+            "properties": {}
         },
         {
             "apiVersion": "2016-03-01",
             "name": "[parameters('webSiteName')]",
             "type": "Microsoft.Web/sites",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('webAppLocation')]",
             "identity": {
                 "type": "SystemAssigned"
             },
             "dependsOn": [
-                "[variables('hostingPlanName')]"
+                "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
             ],
             "tags": {
-                "[concat('hidden-related:', resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName')))]": "empty",
+                "[concat('hidden-related:', resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName')))]": "empty",
                 "displayName": "Website"
             },
             "properties": {
-                "name": "[parameters('webSiteName')]",
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
-            }
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
+            },
+            "resources": [
+                {
+                    "apiVersion": "2016-03-01",
+                    "name": "appsettings",
+                    "type": "config",
+                    "location": "[resourceGroup().location]",
+                    "properties": {
+                        "tokenResourceUrl": "[reference(concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'), '/services/dropbox/tokens/sampleToken'), '2018-08-01-preview').tokenUri]"
+                    },
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/Sites', parameters('webSiteName'))]",
+                        "[resourceId('Microsoft.Web/Sites/sourcecontrols', parameters('webSiteName'), 'web')]",
+                        "[concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'), '/services/dropbox/tokens/sampleToken')]"
+                    ]
+                },
+                {
+                    "apiVersion":"2018-02-01",
+                    "name":"web",
+                    "type":"sourcecontrols",
+                    "dependsOn":[
+                        "[resourceId('Microsoft.Web/Sites', parameters('webSiteName'))]"
+                    ],
+                    "properties":{
+                      "RepoUrl":"[parameters('githubUrl')]",
+                      "branch":"[parameters('githubBranch')]",
+                      "IsManualIntegration": true
+                    }
+                  }
+            ]
         },
         {
             "type": "Microsoft.TokenVault/vaults",
             "name": "[parameters('tokenVaultName')]",
             "apiVersion": "2018-08-01-preview",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('tokenVaultLocation')]",
             "tags": {},
-            "properties": {
-            },
+            "properties": {},
             "dependsOn": [
                 "[concat('Microsoft.Web/sites/', parameters('webSiteName'))]"
-            ]
-        },
-        {
-            "type": "Microsoft.TokenVault/vaults/accessPolicies",
-            "name": "[concat(parameters('tokenVaultName'), '/', parameters('webSiteName'))]",
-            "apiVersion": "2018-08-01-preview",
-            "properties": {
-                "principal": {
-                    "tenantId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').tenantId]",
-                    "objectId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').principalId]"
-                },
-                "permissions": [
-                        "Get",
-                        "List",
-                        "CreateOrUpdate",
-                        "Delete"
+            ],
+            "resources": [
+                {
+                    "type": "accessPolicies",
+                    "name": "[parameters('webSiteName')]",
+                    "apiVersion": "2018-08-01-preview",
+                    "properties": {
+                        "principal": {
+                            "tenantId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').tenantId]",
+                            "objectId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').principalId]"
+                        },
+                        "permissions": [
+                            "Get",
+                            "List",
+                            "CreateOrUpdate",
+                            "Delete"
+                        ]
+                    },
+                    "dependsOn": [
+                        "[concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'))]"
                     ]
-            },
-            "dependsOn": [
-                "[concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'))]"
-            ]
-        },
-        {
-            "type": "Microsoft.TokenVault/vaults/services",
-            "name": "[concat(parameters('tokenVaultName'), '/dropbox')]",
-            "apiVersion": "2018-08-01-preview",
-            "properties": {
-                "tokenParameters": {},
-                "authentication": {
-                  "managedIdentityProvider": {
-                    "name": "dropbox"
-                  },
-                  "parameters": {
-                    "clientid": "[parameters('tokenVaultServiceClientId')]",
-                    "clientsecret": "[parameters('tokenVaultServiceClientId')]"
-                  }
                 },
-                "displayName": "App Demo Dropbox App"
-            },
-            "dependsOn": [
-                "[concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'))]"
-            ]
-        },
-        {
-            "type": "Microsoft.TokenVault/vaults/services/tokens",
-            "name": "[concat(parameters('tokenVaultName'), '/dropbox/sampleToken')]",
-            "apiVersion": "2018-08-01-preview",
-            "properties": {
-                "displayName": "sample token"
-            },
-            "dependsOn": [
-                "[concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'), '/services/dropbox')]"
+                {
+                    "type": "services",
+                    "name": "dropbox",
+                    "apiVersion": "2018-08-01-preview",
+                    "properties": {
+                        "tokenParameters": {},
+                        "authentication": {
+                            "managedIdentityProvider": {
+                                "name": "dropbox"
+                            },
+                            "parameters": {
+                                "clientid": "[parameters('tokenVaultDropboxServiceClientId')]",
+                                "clientsecret": "[parameters('tokenVaultDropBoxServiceClientSecret')]"
+                            }
+                        },
+                        "displayName": "App Demo Dropbox App"
+                    },
+                    "dependsOn": [
+                        "[concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'))]"
+                    ],
+                    "resources": [
+                        {
+                            "type": "tokens",
+                            "name": "sampleToken",
+                            "apiVersion": "2018-08-01-preview",
+                            "properties": {
+                                "displayName": "sample token"
+                            },
+                            "dependsOn": [
+                                "[concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'), '/services/dropbox')]"
+                            ]
+                        }
+                    ]
+                }
             ]
         }
-    ]
+    ],
+    "outputs": {
+        "DropBoxLoginLink": {
+            "type": "string",
+            "value": "[reference(concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'), '/services/dropbox/tokens/sampleToken'), '2018-08-01-preview').loginUri]"
+        },
+        "TokenVaultRedirectUri": {
+            "type": "string", 
+            "value": "[reference(concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName')), '2018-08-01-preview').redirectUrl]", 
+            "metadata":{
+                "description": "This url must be whitelisted as valid redirect Url in the SAAS registration - e.g. https://www.dropbox.com/developers/apps."
+            }
+        }
+    }
 }
