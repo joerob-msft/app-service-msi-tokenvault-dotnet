@@ -18,6 +18,9 @@ To run and deploy this sample, you need the following:
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjoerob-msft%2Fapp-service-msi-tokenvault-dotnet%2Fmaster%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fjoerob-msft%2Fapp-service-msi-tokenvault-dotnet%2Fmaster%2Fazuredeploy.json" target="_blank">
+    <img src="http://armviz.io/visualizebutton.png"/>
+</a>
 
 Use the "Deploy to Azure" button to deploy an ARM template to create the following resources:
 1. App Service with MSI.
@@ -49,20 +52,20 @@ The relevant code is in WebAppTokenVault/WebAppTokenVault/Controllers/HomeContro
 ```csharp    
 public async System.Threading.Tasks.Task<ActionResult> Index()
 {
+    // static client to have connection pooling
+    private static HttpClient client = new HttpClient();
     AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();
-
+    
     try
-    {
-        using (var client = new HttpClient())
-        {                    
-            string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync("https://tokenvault.azure-int.net");
-            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiToken}");
+    {               
+        string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync("https://tokenvault.azure-int.net");
+        var request = new HttpRequestMessage(HttpMethod.Post, "https://tokenvaultname.brazilsouth.tokenvault.azure-int.net/services/dropbox/tokens/tokenname");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
 
-            var response = await client.PostAsync("https://tokenvaultname.brazilsouth.tokenvault.azure-int.net/services/dropbox/tokens/tokenname", null);
-            var responseString = await response.Content.ReadAsStringAsync();
-            
-            ViewBag.Secret = $"Token: {responseString}";
-        }
+        var response = await client.SendAsync(request);
+        var responseString = await response.Content.ReadAsStringAsync();
+        
+        ViewBag.Secret = $"Token: {responseString}";
     }
     catch (Exception exp)
     {
