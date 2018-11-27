@@ -4,19 +4,15 @@ platforms: dotnet
 author: joerob-msft
 ---
 
-# Use "Token Vault" from App Service with Managed Service Identity
+> Note: The App Service Token Vault feature is in Private Preview, which means it will only be available to you after contacting our team, and completing an onboarding process. Private Preview features like Token Vault are only meant for gathering feedback from users, and should not be used in production. This feature may be discontinued at any time without prior notice. 
 
-## Background
-For Service-to-Service authentication, the approach so far involved acquiring and then storing associated user access token and refresh token, and using that refresh token to get a token when needed. While this approach works well, there are some shortcomings:
-1. Storing tokens needs to be encrypted and secure.
-
-With [Azure Token Vault](https://azure.microsoft.com/en-us/), these problems are solved. This sample shows how a Web App can use Azure Token Vault to store and get an access token when needed. 
-
+# Use Token Vault from App Service with Managed Service Identity
 
 ## Prerequisites
 To run and deploy this sample, you need the following:
-1. An Azure subscription to create an App Service and a Token Vault. 
-2. [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) to run the application on your local development machine.
+1. An Azure subscription to create an App Service and a Token Vault.
+2. Completing the App Service Token Vault Private Preview onboarding process (Please contact our team for further instructions).
+3. [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) to run the application on your local development machine.
 
 ## Step 1: Create an App Service with a Managed Service Identity (MSI)
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjoerob-msft%2Fapp-service-msi-tokenvault-dotnet%2Fmaster%2Fazuredeploy.json" target="_blank">
