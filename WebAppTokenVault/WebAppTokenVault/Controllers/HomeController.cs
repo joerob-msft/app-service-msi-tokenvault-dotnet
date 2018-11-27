@@ -9,7 +9,7 @@ namespace WebAppTokenVault.Controllers
 {
     public class HomeController : Controller
     {
-        const string TokenVaultResource = "https://tokenvault.azure-int.net";
+        const string TokenVaultResource = "https://tokenvault.azure.net";
         // static client to have connection pooling
         private static HttpClient client = new HttpClient();
 
@@ -17,7 +17,7 @@ namespace WebAppTokenVault.Controllers
         {
             var azureServiceTokenProvider = new AzureServiceTokenProvider();
 
-            // token Url - e.g. "https://tokenvaultname.brazilsouth.tokenvault.azure-int.net/services/dropbox/tokens/tokenname"
+            // token Url - e.g. "https://tokenvaultname.westcentralus.tokenvault.azure.net/services/dropbox/tokens/tokenname"
             string tokenResourceUrl = ConfigurationManager.AppSettings["tokenResourceUrl"];
             ViewBag.LoginLink = $"{tokenResourceUrl}/login?PostLoginRedirectUrl={this.Request.Url}";
 

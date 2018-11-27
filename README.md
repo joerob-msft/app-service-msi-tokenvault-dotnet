@@ -62,8 +62,8 @@ public async System.Threading.Tasks.Task<ActionResult> Index()
     
     try
     {               
-        string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync("https://tokenvault.azure-int.net");
-        var request = new HttpRequestMessage(HttpMethod.Post, "https://tokenvaultname.brazilsouth.tokenvault.azure-int.net/services/dropbox/tokens/tokenname");
+        string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync("https://tokenvault.azure.net");
+        var request = new HttpRequestMessage(HttpMethod.Post, "https://tokenvaultname.westcentralus.tokenvault.azure.net/services/dropbox/tokens/tokenname");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
 
         var response = await client.SendAsync(request);
