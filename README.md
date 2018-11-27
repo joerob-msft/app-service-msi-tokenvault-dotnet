@@ -4,7 +4,7 @@ platforms: dotnet
 author: joerob-msft
 ---
 
-# Use Token Vault from App Service with Managed Service Identity
+# Use "Token Vault" from App Service with Managed Service Identity
 
 ## Background
 For Service-to-Service authentication, the approach so far involved acquiring and then storing associated user access token and refresh token, and using that refresh token to get a token when needed. While this approach works well, there are some shortcomings:
