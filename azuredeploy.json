@@ -59,12 +59,12 @@
         },
         "tokenVaultLocation": {
             "type": "string",
-            "defaultValue": "brazilsouth",
+            "defaultValue": "westcentralus",
             "metadata": {
                 "description": "Azure location where the token vault will be deployed."
             },
             "allowedValues": [
-                "brazilsouth" 
+                "westcentralus" 
             ]
         },
         "tokenVaultDropboxServiceClientId": {
@@ -81,7 +81,7 @@
         },
         "githubUrl": {
             "type": "string",
-            "defaultValue": "https://github.com/galiniliev/app-service-msi-tokenvault-dotnet.git"
+            "defaultValue": "https://github.com/joerob-msft/app-service-msi-tokenvault-dotnet.git"
         },
         "githubBranch": {
             "type": "string",
