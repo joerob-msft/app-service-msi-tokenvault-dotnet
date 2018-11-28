@@ -38,17 +38,14 @@
                 "description": "Describes plan's pricing tier and instance size. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
             }
         },
-        "webAppLocation": {
+        "location": {
             "type": "string",
-            "defaultValue": "westus2",
+            "defaultValue": "westcentralus",
             "metadata": {
-                "description": "Azure location where the web app will be deployed."
+                "description": "Azure location where the web app and tokenvault will be deployed."
             },
             "allowedValues": [
-                "westus2",
-                "westus",
-                "eastus",
-                "eastus2" 
+                "westcentralus"
             ]
         },
         "tokenVaultName": {
@@ -57,26 +54,16 @@
                 "description": "Token Vault to be created. Web site will be granted access to this Token Vault. Token Vault DNS name should be whitelisted in SAAS OAuth app registration as valid redirect - see value in ARM output TokenVaultRedirectUri."
             }
         },
-        "tokenVaultLocation": {
-            "type": "string",
-            "defaultValue": "westcentralus",
-            "metadata": {
-                "description": "Azure location where the token vault will be deployed."
-            },
-            "allowedValues": [
-                "westcentralus" 
-            ]
-        },
-        "tokenVaultDropboxServiceClientId": {
+        "dropboxAppKey": {
             "type": "string",
             "metadata": {
-                "description": "Client Id to add to the Token Vault Service. Obtain it by creating a new app at https://www.dropbox.com/developers/apps."
+                "description": "App Key to add to the Token Vault Service. Obtain it by creating a new app at https://www.dropbox.com/developers/apps."
             }
         },
-        "tokenVaultDropBoxServiceClientSecret": {
+        "DropboxAppSecret": {
             "type": "securestring",
             "metadata": {
-                "description": "Client Secret to add to the Token Vault Service. Obtain it by creating a new app at https://www.dropbox.com/developers/apps"
+                "description": "App Secret to add to the Token Vault Service. Obtain it by creating a new app at https://www.dropbox.com/developers/apps"
             }
         },
         "githubUrl": {
@@ -96,7 +83,7 @@
             "apiVersion": "2016-03-01",
             "name": "[parameters('hostingPlanName')]",
             "type": "Microsoft.Web/serverfarms",
-            "location": "[parameters('webAppLocation')]",
+            "location": "[parameters('location')]",
             "tags": {
                 "displayName": "HostingPlan"
             },
@@ -110,7 +97,7 @@
             "apiVersion": "2016-03-01",
             "name": "[parameters('webSiteName')]",
             "type": "Microsoft.Web/sites",
-            "location": "[parameters('webAppLocation')]",
+            "location": "[parameters('location')]",
             "identity": {
                 "type": "SystemAssigned"
             },
@@ -129,7 +116,7 @@
                     "apiVersion": "2016-03-01",
                     "name": "appsettings",
                     "type": "config",
-                    "location": "[resourceGroup().location]",
+                    "location": "[parameters('location')]",
                     "properties": {
                         "tokenResourceUrl": "[reference(concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'), '/services/dropbox/tokens/sampleToken'), '2018-08-01-preview').tokenUri]"
                     },
@@ -158,7 +145,7 @@
             "type": "Microsoft.TokenVault/vaults",
             "name": "[parameters('tokenVaultName')]",
             "apiVersion": "2018-08-01-preview",
-            "location": "[parameters('tokenVaultLocation')]",
+            "location": "[parameters('location')]",
             "tags": {},
             "properties": {},
             "dependsOn": [
