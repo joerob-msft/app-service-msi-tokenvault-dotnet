@@ -38,16 +38,6 @@
                 "description": "Describes plan's pricing tier and instance size. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
             }
         },
-        "location": {
-            "type": "string",
-            "defaultValue": "westcentralus",
-            "metadata": {
-                "description": "Azure location where the web app and tokenvault will be deployed."
-            },
-            "allowedValues": [
-                "westcentralus"
-            ]
-        },
         "tokenVaultName": {
             "type": "string",
             "metadata": {
@@ -83,7 +73,7 @@
             "apiVersion": "2016-03-01",
             "name": "[parameters('hostingPlanName')]",
             "type": "Microsoft.Web/serverfarms",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "tags": {
                 "displayName": "HostingPlan"
             },
@@ -97,7 +87,7 @@
             "apiVersion": "2016-03-01",
             "name": "[parameters('webSiteName')]",
             "type": "Microsoft.Web/sites",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "identity": {
                 "type": "SystemAssigned"
             },
@@ -116,7 +106,7 @@
                     "apiVersion": "2016-03-01",
                     "name": "appsettings",
                     "type": "config",
-                    "location": "[parameters('location')]",
+                    "location": "[resourceGroup().location]",
                     "properties": {
                         "tokenResourceUrl": "[reference(concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'), '/services/dropbox/tokens/sampleToken'), '2018-08-01-preview').tokenUri]"
                     },
@@ -145,7 +135,7 @@
             "type": "Microsoft.TokenVault/vaults",
             "name": "[parameters('tokenVaultName')]",
             "apiVersion": "2018-08-01-preview",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "tags": {},
             "properties": {},
             "dependsOn": [
