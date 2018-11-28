@@ -183,8 +183,8 @@
                                 "name": "dropbox"
                             },
                             "parameters": {
-                                "clientid": "[parameters('tokenVaultDropboxServiceClientId')]",
-                                "clientsecret": "[parameters('tokenVaultDropBoxServiceClientSecret')]"
+                                "clientid": "[parameters('dropboxAppKey')]",
+                                "clientsecret": "[parameters('dropboxAppSecret')]"
                             }
                         },
                         "displayName": "App Demo Dropbox App"
