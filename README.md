@@ -39,7 +39,8 @@ Use the "Deploy to Azure" button to deploy an ARM template to create the followi
 
 Review the resources created using the Azure portal. You should see an App Service and a Token Vault (Click Show Hidden Types to see Token Vault resource).
 
-At this point you have a running Web App and an integrated Token Vault that can hold an access token for DropBox. Click Login to authenticate the token and see the DropBox List Folder API call result.
+---
+>NOTE: At this point you have a running Web App and an integrated Token Vault that can hold an access token for DropBox. Click Login to authenticate the token and see the DropBox List Folder API call result.
 
 The steps below are to modify the web app and/or run the web app locally.
 

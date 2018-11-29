@@ -73,7 +73,7 @@
                 "description": "App Key to add to the Token Vault Service. Obtain it by creating a new app at https://www.dropbox.com/developers/apps."
             }
         },
-        "DropboxAppSecret": {
+        "dropboxAppSecret": {
             "type": "securestring",
             "metadata": {
                 "description": "App Secret to add to the Token Vault Service. Obtain it by creating a new app at https://www.dropbox.com/developers/apps"
