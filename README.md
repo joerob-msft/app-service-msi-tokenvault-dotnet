@@ -4,7 +4,7 @@ platforms: dotnet
 author: joerob-msft
 ---
 
-> Note: The App Service "Token Vault" feature is in Private Preview, which means it will only be available to you after contacting our team, and completing an onboarding process. Private Preview features like "Token Vault" are only meant for gathering feedback from users, and should not be used in production. This feature may be discontinued at any time without prior notice. 
+> Note: The App Service "Token Vault" feature is in Private Preview, which means it will only be available to you after contacting our team, and completing an onboarding process. Private Preview features like "Token Vault" are only meant for gathering feedback from users, and should not be used in production, as they may be discontinued at any time without prior notice. 
 
 # Using "Token Vault" from an App Service Website (with a Managed Service Identity)
 
@@ -12,7 +12,6 @@ author: joerob-msft
 To deploy this sample, you need the following:
 1. An Azure subscription to create App Service and Token Vault resources.
 2. Completing the App Service "Token Vault" Private Preview onboarding process (Please contact our team for further instructions).
-3. [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) to run the application on your local development machine.
 
 ## Step 1: Create a Dropbox developer app
 
@@ -20,7 +19,7 @@ To deploy this sample, you need the following:
 2. *Sign in* using the link on top of the page. **[Sign up](https://www.dropbox.com/register)** if you do not have an account already.
 3. [Create a new app](https://www.dropbox.com/developers/apps/create), choose **Dropbox API**, **Full Dropbox** access, and create a unique name for your app.
 4. Record the **App key** and **App secret** vaules for future use.
-5. Set the redirect URI to `https://[token-vault-name].brazilsouth.tokenvault.azure-int.net/redirect` where `[token-vault-name] is the name of your token vault that you will create in the name step.
+5. Set the redirect URI to `https://[token-vault-name].brazilsouth.tokenvault.azure-int.net/redirect` where `[token-vault-name] is the name of your token vault that you will create in the next step.
 
 ## Step 2: Create an App Service with a Managed Service Identity (MSI)
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjoerob-msft%2Fapp-service-msi-tokenvault-dotnet%2Fmaster%2Fazuredeploy.json" target="_blank">
@@ -34,7 +33,7 @@ To deploy this sample, you need the following:
 1. Use the "Deploy to Azure" button to deploy an ARM template to create the following resources:
 - [App Service with Managed Service Identity](https://docs.microsoft.com/en-us/azure/app-service/app-service-managed-service-identity).
 - Token Vault with a service and token, and an access policy that grants the App Service access to **Get Secrets**.
-2. When filling out the template you will see a textbox labelled **tokenVaultDropboxServiceClientId** and **tokenVaultDropboxServiceClientId**. Enter the values **App key** and **App secret** from previous step.
+2. When filling out the template you will see a textbox labelled **`dropboxAppKey`** and **`dropboxAppKey`**. Enter the values **App key** and **App secret** from previous step.
 [Open Issue] The Token Vault resource is not visible in the UI. 3. Review the resources created using the Azure portal. You should see App Service and Token Vault resources. View the access policies of the Token Vault to see that the App Service has access to it. 
 
 # Advanced - Locally debugging the website accessing "Token Vault"
