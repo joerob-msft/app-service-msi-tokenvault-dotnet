@@ -8,6 +8,12 @@
 
     <div>@ViewBag.Principal</div>
 
+    @foreach (string file in ViewBag.FileList)
+    {
+        @Html.Raw(file)
+        <br />
+    }
+
     <div>@ViewBag.Error</div>
 
 </div>
