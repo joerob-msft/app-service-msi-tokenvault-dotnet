@@ -18,7 +18,13 @@ To run and deploy this sample, you need the following:
 1. An Azure subscription to create an App Service and a Token Vault. 
 2. [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) to run the application on your local development machine.
 
-## Step 1: Create an App Service with a Managed Service Identity (MSI)
+## Step 1: Create a Dropbox App to integrate with
+Log in to <a href="https://www.dropbox.com/developers/apps/create" target="_blank">Dropbox</a> and create an API App that this sample App Service integrates with.
+
+1. Note the **App Key** and **App Secret** from the App Settings page.
+2. Add a redirect URI that matches the Token Vault that will be created in step 2. (https://tokenvaultname.westcentralus.tokenvault.azure.net) where <tokenvaultname> matches the name specified when deploying below.
+
+## Step 2: Create an App Service with a Managed Service Identity (MSI)
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjoerob-msft%2Fapp-service-msi-tokenvault-dotnet%2Fmaster%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
@@ -27,26 +33,23 @@ To run and deploy this sample, you need the following:
 </a>
 
 Use the "Deploy to Azure" button to deploy an ARM template to create the following resources:
-1. App Service with MSI.
+1. App Service with MSI and the sample web app from this repository deployed.
 2. Token Vault with a service and token, and an access policy that grants the App Service access to **Get Secrets**.
->Note: When filling out the template you will see a textbox labelled 'Token Vault Service Client Id' and 'Token Vault Service Client Secret'. Enter a client Id and Secret there. A service with the name 'dropbox' and value from what you entered will be created in the Token Vault.
+>Note: When filling out the template you will see a textbox labelled 'Dropbox App Key' and 'Dropbox App Secret'. Enter a the App Key and App Secret from the Dropbox App created in Step 1 above. A service with the name 'dropbox' will be created in the Token Vault.
 
-Review the resources created using the Azure portal. You should see an App Service and a Token Vault. View the access policies of the Token Vault to see that the App Service has access to it. 
+Review the resources created using the Azure portal. You should see an App Service and a Token Vault (Click Show Hidden Types to see Token Vault resource).
 
-## Step 2: Grant yourself data plane access to the Token Vault
-Using the Azure Portal, go to the Token Vault's access policies, and grant yourself **Secret Management** access to the Token Vault. This will allow you to run the application on your local development machine. 
+---
+>NOTE: At this point you have a running Web App and an integrated Token Vault that can hold an access token for DropBox. Click Login to authenticate the token and see the DropBox List Folder API call result.
 
-1.	Search for your Token Vault in “Search Resources dialog box” in Azure Portal.
-2.	Select "Overview", and click on Access policies
-3.	Click on "Add New", select "Secret Management" from the dropdown for "Configure from template"
-4.	Click on "Select Principal", add your account 
-5.	Click on "OK" to add the new Access Policy, then click "Save" to save the Access Policies
+The steps below are to modify the web app and/or run the web app locally.
 
 ## Step 3: Clone the repo 
 Clone the repo to your development machine. 
 
 The project has the following relevant Nuget packages:
 1. Microsoft.Azure.Services.AppAuthentication - makes it easy to fetch access tokens for Service-to-Azure-Service authentication scenarios. 
+1. Dropbox.Api - makes it easy make calls to Dropbox API. 
 
 The relevant code is in WebAppTokenVault/WebAppTokenVault/Controllers/HomeController.cs file. The **AzureServiceTokenProvider** class (which is part of Microsoft.Azure.Services.AppAuthentication) tries the following methods to get an access token:-
 1. Managed Service Identity (MSI) - for scenarios where the code is deployed to Azure, and the Azure resource supports MSI. 
@@ -55,35 +58,44 @@ The relevant code is in WebAppTokenVault/WebAppTokenVault/Controllers/HomeContro
 
 ```csharp    
 public async System.Threading.Tasks.Task<ActionResult> Index()
-{
-    // static client to have connection pooling
-    private static HttpClient client = new HttpClient();
-    AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();
-    
-    try
-    {               
-        string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync("https://tokenvault.azure.net");
-        var request = new HttpRequestMessage(HttpMethod.Post, "https://tokenvaultname.westcentralus.tokenvault.azure.net/services/dropbox/tokens/tokenname");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
-
-        var response = await client.SendAsync(request);
-        var responseString = await response.Content.ReadAsStringAsync();
-        
-        ViewBag.Secret = $"Token: {responseString}";
-    }
-    catch (Exception exp)
     {
-        ViewBag.Error = $"Something went wrong: {exp.Message}";
+        var azureServiceTokenProvider = new AzureServiceTokenProvider();
+
+        // token Url - e.g. "https://tokenvaultname.westcentralus.tokenvault.azure.net/services/dropbox/tokens/sampleToken"
+        string tokenResourceUrl = ConfigurationManager.AppSettings["tokenResourceUrl"];
+        ViewBag.LoginLink = $"{tokenResourceUrl}/login?PostLoginRedirectUrl={this.Request.Url}";
+
+        try
+        {
+            string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenVaultResource);
+            var request = new HttpRequestMessage(HttpMethod.Post, tokenResourceUrl);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
+
+            var response = await client.SendAsync(request);
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            var token = JsonConvert.DeserializeObject<Token>(responseString);
+
+            ViewBag.Secret = $"Token: {token.Value?.AccessToken}";
+
+            ViewBag.FileList = await this.GetDocuments(token.Value?.AccessToken);
+        }
+        catch (Exception exp)
+        {
+            ViewBag.Error = $"Something went wrong: {exp.InnerException?.Message}";
+        }
+
+        ViewBag.Principal = azureServiceTokenProvider.PrincipalUsed != null ? $"Principal Used: {azureServiceTokenProvider.PrincipalUsed}" : string.Empty;
+
+        return View();
     }
-
-    ViewBag.Principal = azureServiceTokenProvider.PrincipalUsed != null ? $"Principal Used: {azureServiceTokenProvider.PrincipalUsed}" : string.Empty;
-
-    return View();
-}
 ```
 ## Step 4: Replace the token vault name
-In the HomeController.cs file, change the Token Vault name to the one you just created. Replace **TokenVaultName** with the name of your Token Vault. 
+In the Web.config file, change the tokenvaultname in the key tokenResourceUrl to the one you just created. Replace **TokenVaultName** with the name of your Token Vault. 
 
+```xml   
+<add key="tokenResourceUrl" value="https://tokenvaultname.westcentralus.tokenvault.azure.net/services/dropbox/tokens/sampleToken" />
+```
 ## Step 5: Run the application on your local development machine
 AzureServiceTokenProvider will use the developer's security context to get a token to authenticate to Token Vault. This removes the need to create a service principal, and share it with the development team. It also prevents credentials from being checked in to source code. 
 AzureServiceTokenProvider will use **Azure CLI** or **Active Directory Integrated Authentication** to authenticate to Azure AD to get a token. That token will be used to fetch the secret from Azure Token Vault. 
@@ -107,7 +119,7 @@ The AppId of the MSI will be displayed.
 
 ## Summary
 The web app was successfully able to get a token at runtime from Azure Token Vault using your developer account during development, and using MSI when deployed to Azure, without any code change between local development environment and Azure. 
-You do not have to worry about renewing access token either, since Token Vault takes care of that.  
+You do not have to worry about renewing access token before using it to call dropbox since Token Vault takes care of that.  
 
 ## Running the application using a service principal in local development environment
 >Note: It is recommended to use your developer context for local development, since you do not need to create or share a service principal for that. If that does not work for you, you can use a service principal, but do not check in the certificate or secret in source repos, and share them securely.
@@ -148,5 +160,5 @@ Check the environment variables MSI_ENDPOINT and MSI_SECRET exist using [Kudu de
 
 1. Access denied
 
-The principal used does not have access to the Token Vault. The principal used in show on the web page. Grant that user (in case of developer context) or application "Get secret" access to the Token Vault. 
+The principal or user used does not have access to the Token Vault. The principal used in shown on the web page. Grant that user (in case of developer context) or application "Get secret" access to the Token Vault. The MSI identity of the web app is added to the Token Vault at deployment time, and the user that is running the deployment is also added. To add another identity you should modify the arm template and deploy again to the same vault.
 
