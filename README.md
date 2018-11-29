@@ -48,6 +48,7 @@ Clone the repo to your development machine.
 
 The project has the following relevant Nuget packages:
 1. Microsoft.Azure.Services.AppAuthentication - makes it easy to fetch access tokens for Service-to-Azure-Service authentication scenarios. 
+1. Dropbox.Api - makes it easy make calls to Dropbox API. 
 
 The relevant code is in WebAppTokenVault/WebAppTokenVault/Controllers/HomeController.cs file. The **AzureServiceTokenProvider** class (which is part of Microsoft.Azure.Services.AppAuthentication) tries the following methods to get an access token:-
 1. Managed Service Identity (MSI) - for scenarios where the code is deployed to Azure, and the Azure resource supports MSI. 
@@ -56,35 +57,44 @@ The relevant code is in WebAppTokenVault/WebAppTokenVault/Controllers/HomeContro
 
 ```csharp    
 public async System.Threading.Tasks.Task<ActionResult> Index()
-{
-    // static client to have connection pooling
-    private static HttpClient client = new HttpClient();
-    AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();
-    
-    try
-    {               
-        string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync("https://tokenvault.azure.net");
-        var request = new HttpRequestMessage(HttpMethod.Post, "https://tokenvaultname.westcentralus.tokenvault.azure.net/services/dropbox/tokens/tokenname");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
-
-        var response = await client.SendAsync(request);
-        var responseString = await response.Content.ReadAsStringAsync();
-        
-        ViewBag.Secret = $"Token: {responseString}";
-    }
-    catch (Exception exp)
     {
-        ViewBag.Error = $"Something went wrong: {exp.Message}";
+        var azureServiceTokenProvider = new AzureServiceTokenProvider();
+
+        // token Url - e.g. "https://tokenvaultname.westcentralus.tokenvault.azure.net/services/dropbox/tokens/sampleToken"
+        string tokenResourceUrl = ConfigurationManager.AppSettings["tokenResourceUrl"];
+        ViewBag.LoginLink = $"{tokenResourceUrl}/login?PostLoginRedirectUrl={this.Request.Url}";
+
+        try
+        {
+            string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenVaultResource);
+            var request = new HttpRequestMessage(HttpMethod.Post, tokenResourceUrl);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
+
+            var response = await client.SendAsync(request);
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            var token = JsonConvert.DeserializeObject<Token>(responseString);
+
+            ViewBag.Secret = $"Token: {token.Value?.AccessToken}";
+
+            ViewBag.FileList = await this.GetDocuments(token.Value?.AccessToken);
+        }
+        catch (Exception exp)
+        {
+            ViewBag.Error = $"Something went wrong: {exp.InnerException?.Message}";
+        }
+
+        ViewBag.Principal = azureServiceTokenProvider.PrincipalUsed != null ? $"Principal Used: {azureServiceTokenProvider.PrincipalUsed}" : string.Empty;
+
+        return View();
     }
-
-    ViewBag.Principal = azureServiceTokenProvider.PrincipalUsed != null ? $"Principal Used: {azureServiceTokenProvider.PrincipalUsed}" : string.Empty;
-
-    return View();
-}
 ```
 ## Step 4: Replace the token vault name
-In the HomeController.cs file, change the Token Vault name to the one you just created. Replace **TokenVaultName** with the name of your Token Vault. 
+In the Web.config file, change the tokenvaultname in the key tokenResourceUrl to the one you just created. Replace **TokenVaultName** with the name of your Token Vault. 
 
+```xml   
+<add key="tokenResourceUrl" value="https://tokenvaultname.westcentralus.tokenvault.azure.net/services/dropbox/tokens/sampleToken" />
+```
 ## Step 5: Run the application on your local development machine
 AzureServiceTokenProvider will use the developer's security context to get a token to authenticate to Token Vault. This removes the need to create a service principal, and share it with the development team. It also prevents credentials from being checked in to source code. 
 AzureServiceTokenProvider will use **Azure CLI** or **Active Directory Integrated Authentication** to authenticate to Azure AD to get a token. That token will be used to fetch the secret from Azure Token Vault. 
