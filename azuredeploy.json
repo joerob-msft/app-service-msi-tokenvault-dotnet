@@ -40,7 +40,11 @@
         },
         "webAppLocation": {
             "type": "string",
+<<<<<<< HEAD
             "defaultValue": "West Central US",
+=======
+            "defaultValue": "West US 2",
+>>>>>>> remotes/origin/master
             "metadata": {
                 "description": "Azure location where the web app will be deployed."
             },
@@ -48,8 +52,12 @@
                 "West US 2",
                 "West US",
                 "East US",
+<<<<<<< HEAD
                 "East US 2",
                 "West Central US" 
+=======
+                "East US 2" 
+>>>>>>> remotes/origin/master
             ]
         },
         "tokenVaultName": {
@@ -74,7 +82,11 @@
                 "description": "App Key to add to the Token Vault Service. Obtain it by creating a new app at https://www.dropbox.com/developers/apps."
             }
         },
+<<<<<<< HEAD
         "DropboxAppSecret": {
+=======
+        "dropboxAppSecret": {
+>>>>>>> remotes/origin/master
             "type": "securestring",
             "metadata": {
                 "description": "App Secret to add to the Token Vault Service. Obtain it by creating a new app at https://www.dropbox.com/developers/apps"

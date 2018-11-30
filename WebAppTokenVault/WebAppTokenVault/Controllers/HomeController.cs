@@ -34,13 +34,22 @@ namespace WebAppTokenVault.Controllers
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
 
                 var response = await client.SendAsync(request);
+
                 var responseString = await response.Content.ReadAsStringAsync();
 
+<<<<<<< HEAD
                 var token = JsonConvert.DeserializeObject<Token>(responseString);
 
                 ViewBag.Secret = $"Token: {token.Value?.AccessToken}";
 
                 ViewBag.FileList = await this.GetDocuments(token.Value?.AccessToken);
+=======
+                var token = response.IsSuccessStatusCode ? JsonConvert.DeserializeObject<Token>(responseString)?.Value?.AccessToken : responseString;
+
+                ViewBag.Secret = $"Token: {token}";
+
+                ViewBag.FileList = response.IsSuccessStatusCode ? await this.ListDropboxFolderContents(token) : new List<string>();
+>>>>>>> remotes/origin/master
             }
             catch (Exception exp)
             {
@@ -66,7 +75,11 @@ namespace WebAppTokenVault.Controllers
             return View();
         }
 
+<<<<<<< HEAD
         private async Task<List<string>> GetDocuments(string token)
+=======
+        private async Task<List<string>> ListDropboxFolderContents(string token)
+>>>>>>> remotes/origin/master
         {
             var filesList = new List<string>();
 

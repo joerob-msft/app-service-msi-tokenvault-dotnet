@@ -21,6 +21,15 @@ To deploy this sample, you need the following:
 4. Record the **App key** and **App secret** vaules for future use.
 5. Set the redirect URI to `https://[token-vault-name].brazilsouth.tokenvault.azure-int.net/redirect` where `[token-vault-name] is the name of your token vault that you will create in the next step.
 
+<<<<<<< HEAD
+=======
+## Step 1: Create a Dropbox App to integrate with
+Log in to <a href="https://www.dropbox.com/developers/apps/create" target="_blank">Dropbox</a> and create an API App that this sample App Service integrates with.
+
+1. Note the **App Key** and **App Secret** from the App Settings page.
+2. Add a redirect URI that matches the Token Vault that will be created in step 2. (https://tokenvaultname.westcentralus.tokenvault.azure.net) where <tokenvaultname> matches the name specified when deploying below.
+
+>>>>>>> remotes/origin/master
 ## Step 2: Create an App Service with a Managed Service Identity (MSI)
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjoerob-msft%2Fapp-service-msi-tokenvault-dotnet%2Fmaster%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
@@ -50,9 +59,15 @@ Use the "Deploy to Azure" button to deploy an ARM template to create the followi
 
 Review the resources created using the Azure portal. You should see an App Service and a Token Vault (Click Show Hidden Types to see Token Vault resource).
 
+<<<<<<< HEAD
 
 At this point you have a running Web App and an integrated Token Vault that can hold an access token for DropBox. Click Login to authenticate the token and see the DropBox List Folder API call result.
 
+=======
+---
+>NOTE: At this point you have a running Web App and an integrated Token Vault that can hold an access token for DropBox. Click Login to authenticate the token and see the DropBox List Folder API call result.
+
+>>>>>>> remotes/origin/master
 The steps below are to modify the web app and/or run the web app locally.
 
 ## Step 3: Clone the repo 
@@ -81,6 +96,7 @@ public async System.Threading.Tasks.Task<ActionResult> Index()
             string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenVaultResource);
             var request = new HttpRequestMessage(HttpMethod.Post, tokenResourceUrl);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
+<<<<<<< HEAD
 
             var response = await client.SendAsync(request);
             var responseString = await response.Content.ReadAsStringAsync();
@@ -89,6 +105,16 @@ public async System.Threading.Tasks.Task<ActionResult> Index()
 
             ViewBag.Secret = $"Token: {token.Value?.AccessToken}";
 
+=======
+
+            var response = await client.SendAsync(request);
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            var token = JsonConvert.DeserializeObject<Token>(responseString);
+
+            ViewBag.Secret = $"Token: {token.Value?.AccessToken}";
+
+>>>>>>> remotes/origin/master
             ViewBag.FileList = await this.GetDocuments(token.Value?.AccessToken);
         }
         catch (Exception exp)
