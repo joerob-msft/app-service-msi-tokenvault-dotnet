@@ -46,6 +46,7 @@ namespace WebAppTokenVault.Controllers
             catch (Exception exp)
             {
                 ViewBag.Error = $"Something went wrong: {exp.InnerException?.Message}";
+                ViewBag.FileList = new List<string>();
             }
 
             ViewBag.Principal = azureServiceTokenProvider.PrincipalUsed != null ? $"Principal Used: {azureServiceTokenProvider.PrincipalUsed}" : string.Empty;
@@ -71,19 +72,22 @@ namespace WebAppTokenVault.Controllers
         {
             var filesList = new List<string>();
 
-            using (var dbx = new DropboxClient(token))
+            if (!string.IsNullOrEmpty(token))
             {
-                var list = await dbx.Files.ListFolderAsync(string.Empty);
-
-                // show folders then files
-                foreach (var item in list.Entries.Where(i => i.IsFolder))
+                using (var dbx = new DropboxClient(token))
                 {
-                    filesList.Add($"D  {item.Name}/");
-                }
+                    var list = await dbx.Files.ListFolderAsync(string.Empty);
 
-                foreach (var item in list.Entries.Where(i => i.IsFile))
-                {
-                    filesList.Add($"F  {item.Name}");
+                    // show folders then files
+                    foreach (var item in list.Entries.Where(i => i.IsFolder))
+                    {
+                        filesList.Add($"D  {item.Name}/");
+                    }
+
+                    foreach (var item in list.Entries.Where(i => i.IsFile))
+                    {
+                        filesList.Add($"F  {item.Name}");
+                    }
                 }
             }
 
