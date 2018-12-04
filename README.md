@@ -22,12 +22,12 @@ To deploy this sample, you need the following:
 5. Set the redirect URI to `https://[token-vault-name].westcentralus.tokenvault.azure.net/redirect` where `[token-vault-name]` is the name of your token vault, that you will create in the next step.
 
 ## Step 2: Create an App Service with a Managed Service Identity (MSI)
-<!-- <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjoerob-msft%2Fapp-service-msi-tokenvault-dotnet%2Fmaster%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjoerob-msft%2Fapp-service-msi-tokenvault-dotnet%2Fmaster%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 <a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fjoerob-msft%2Fapp-service-msi-tokenvault-dotnet%2Fmaster%2Fazuredeploy.json" target="_blank">
     <img src="http://armviz.io/visualizebutton.png"/>
-</a> -->
+</a>
 1. Use the **"Deploy to Azure"** button to deploy an ARM template, creating the following resources:
     1. App Service web app [with Managed Service Identity](https://docs.microsoft.com/en-us/azure/app-service/app-service-managed-service-identity).
     2. "Token Vault" containing service and token resources, as well as an access policy resource that grants the App Service access to **Get Secrets**.
