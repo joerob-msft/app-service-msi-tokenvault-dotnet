@@ -40,9 +40,6 @@
         },
         "webAppLocation": {
             "type": "string",
-<<<<<<< HEAD
-            "defaultValue": "West Central US",
-=======
             "defaultValue": "West US 2",
 >>>>>>> remotes/origin/master
             "metadata": {
@@ -82,11 +79,7 @@
                 "description": "App Key to add to the Token Vault Service. Obtain it by creating a new app at https://www.dropbox.com/developers/apps."
             }
         },
-<<<<<<< HEAD
-        "DropboxAppSecret": {
-=======
         "dropboxAppSecret": {
->>>>>>> remotes/origin/master
             "type": "securestring",
             "metadata": {
                 "description": "App Secret to add to the Token Vault Service. Obtain it by creating a new app at https://www.dropbox.com/developers/apps"
@@ -213,7 +206,7 @@
                                 "clientsecret": "[parameters('dropboxAppSecret')]"
                             }
                         },
-                        "displayName": "App Demo Dropbox App"
+                        "displayName": "Sample Dropbox Service"
                     },
                     "dependsOn": [
                         "[concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'))]"
@@ -224,7 +217,7 @@
                             "name": "sampleToken",
                             "apiVersion": "2018-08-01-preview",
                             "properties": {
-                                "displayName": "sample token"
+                                "displayName": "Sample Dropbox Token"
                             },
                             "dependsOn": [
                                 "[concat('Microsoft.TokenVault/vaults/', parameters('tokenVaultName'), '/services/dropbox')]"
