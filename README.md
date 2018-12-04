@@ -18,7 +18,7 @@ To deploy this sample, you need the following:
 1. Go to the [Dropbox developer portal](https://www.dropbox.com/developers).
 2. **Sign in** using the link on top-right of the site. **[Sign up](https://www.dropbox.com/register)** if you do not have an account already.
 3. [Create a new app](https://www.dropbox.com/developers/apps/create), choose **Dropbox API**, **Full Dropbox** access, and create a unique name for your app.
-4. Record the **App key** and **App secret** vaules for future use.
+4. Record the **App key** and **App secret** values for future use.
 5. Set the redirect URI to `https://[token-vault-name].westcentralus.tokenvault.azure.net/redirect` where `[token-vault-name]` is the name of your token vault, that you will create in the next step.
 
 ## Step 2: Create an App Service with a Managed Service Identity (MSI)
@@ -28,6 +28,7 @@ To deploy this sample, you need the following:
 <a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fjoerob-msft%2Fapp-service-msi-tokenvault-dotnet%2Fmaster%2Fazuredeploy.json" target="_blank">
     <img src="http://armviz.io/visualizebutton.png"/>
 </a>
+
 1. Use the **"Deploy to Azure"** button to deploy an ARM template, creating the following resources:
     1. App Service web app [with Managed Service Identity](https://docs.microsoft.com/en-us/azure/app-service/app-service-managed-service-identity).
     2. "Token Vault" containing service and token resources, as well as an access policy resource that grants the App Service access to **Get Secrets**.
@@ -83,38 +84,40 @@ The relevant code is in `WebAppTokenVault/WebAppTokenVault/Controllers/HomeContr
 3. Active Directory Integrated Authentication (for local development). To use integrated Windows authentication, your domain’s Active Directory must be federated with Azure Active Directory. Your application must be running on a domain-joined machine under a user’s domain credentials.
 
 ```csharp    
-public async System.Threading.Tasks.Task<ActionResult> Index()
-    {
-        var azureServiceTokenProvider = new AzureServiceTokenProvider();
-
-        // token Url - e.g. "https://tokenvaultname.westcentralus.tokenvault.azure.net/services/dropbox/tokens/sampleToken"
-        string tokenResourceUrl = ConfigurationManager.AppSettings["tokenResourceUrl"];
-        ViewBag.LoginLink = $"{tokenResourceUrl}/login?PostLoginRedirectUrl={this.Request.Url}";
-
-        try
+        public async System.Threading.Tasks.Task<ActionResult> Index()
         {
-            string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenVaultResource);
-            var request = new HttpRequestMessage(HttpMethod.Post, tokenResourceUrl);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
+            var azureServiceTokenProvider = new AzureServiceTokenProvider();
 
-            var response = await client.SendAsync(request);
-            var responseString = await response.Content.ReadAsStringAsync();
+            // token Url - e.g. "https://tokenvaultname.westcentralus.tokenvault.azure.net/services/dropbox/tokens/sampleToken"
+            string tokenResourceUrl = ConfigurationManager.AppSettings["tokenResourceUrl"];
+            ViewBag.LoginLink = $"{tokenResourceUrl}/login?PostLoginRedirectUrl={this.Request.Url}";
 
-            var token = JsonConvert.DeserializeObject<Token>(responseString);
+            try
+            {
+                string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenVaultResource);
+                var request = new HttpRequestMessage(HttpMethod.Post, tokenResourceUrl);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
 
-            ViewBag.Secret = $"Token: {token.Value?.AccessToken}";
+                var response = await client.SendAsync(request);
 
-            ViewBag.FileList = await this.GetDocuments(token.Value?.AccessToken);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var token = response.IsSuccessStatusCode ? JsonConvert.DeserializeObject<Token>(responseString)?.Value?.AccessToken : responseString;
+
+                ViewBag.Secret = $"Token: {token}";
+
+                ViewBag.FileList = response.IsSuccessStatusCode ? await this.ListDropboxFolderContents(token) : new List<string>();
+            }
+            catch (Exception exp)
+            {
+                ViewBag.Error = $"Something went wrong: {exp.InnerException?.Message}";
+                ViewBag.FileList = new List<string>();
+            }
+
+            ViewBag.Principal = azureServiceTokenProvider.PrincipalUsed != null ? $"Principal Used: {azureServiceTokenProvider.PrincipalUsed}" : string.Empty;
+
+            return View();
         }
-        catch (Exception exp)
-        {
-            ViewBag.Error = $"Something went wrong: {exp.InnerException?.Message}";
-        }
-
-        ViewBag.Principal = azureServiceTokenProvider.PrincipalUsed != null ? $"Principal Used: {azureServiceTokenProvider.PrincipalUsed}" : string.Empty;
-
-        return View();
-    }
 ```
 
 ## Step 3: Run the application on your local development machine
