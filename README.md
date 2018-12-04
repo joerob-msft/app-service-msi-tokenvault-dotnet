@@ -150,6 +150,14 @@ At this point you have a running Web App and an integrated "Token Vault" that ca
 
 >Note: You can also use a service principal to run the application on your local development machine. See the section "Running the application using a service principal" later in the tutorial on how to do this. 
 
+### Common issues
+
+|Name| Error| Resolution|
+|-----|------|------------|
+|Web Project NuGet package restore| Build error `Could not restore NuGet packages`| Select **Restore NuGet packages** after right clicking the solution. |
+|`System.IO.DirectoryNotFoundException` runtime error| Runtime error page: `Exception Details: System.IO.DirectoryNotFoundException: Could not find a part of the path 'C:\[project-path]\bin\roslyn\csc.exe'.`| **Clean solution** after right clicking the solution, and press **F5** again.|
+
+
 ## Step 4: Deploy the Web App to Azure
 Use any of the methods outlined on [Deploy your app to Azure App Service](https://docs.microsoft.com/en-us/azure/app-service-web/web-sites-deploy) to publish the Web App to Azure. 
 After you deploy it, browse to the web app. You should see the secret on the web page, and this time the Principal Used will show "App", since it ran under the context of the App Service. The AppId of the MSI will be displayed. 
