@@ -105,14 +105,12 @@ The relevant code is in `WebAppTokenVault/WebAppTokenVault/Controllers/HomeContr
             try
             {
                 string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenVaultResource);
-                var request = new HttpRequestMessage(HttpMethod.Post, tokenResourceUrl);
+                var request = new HttpRequestMessage(HttpMethod.Post, $"{tokenResourceUrl}/accesstoken");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
 
                 var response = await client.SendAsync(request);
 
-                var responseString = await response.Content.ReadAsStringAsync();
-
-                var token = response.IsSuccessStatusCode ? JsonConvert.DeserializeObject<Token>(responseString)?.Value?.AccessToken : responseString;
+                var token = await response.Content.ReadAsStringAsync();
 
                 ViewBag.Secret = $"Token: {token}";
 
