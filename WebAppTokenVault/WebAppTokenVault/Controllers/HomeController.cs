@@ -28,17 +28,18 @@ namespace WebAppTokenVault.Controllers
 
             try
             {
-                string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenVaultResource);
+                // Get a token to access Token Vault
+                string tokenVaultApiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenVaultResource);
+
+                // Get Dropbox token from Token Vault
                 var request = new HttpRequestMessage(HttpMethod.Post, $"{tokenResourceUrl}/accesstoken");
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
-
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenVaultApiToken);
                 var response = await client.SendAsync(request);
+                var dropboxApiToken = await response.Content.ReadAsStringAsync();
 
-                var token = await response.Content.ReadAsStringAsync();
+                ViewBag.Secret = $"Token: {dropboxApiToken}";
 
-                ViewBag.Secret = $"Token: {token}";
-
-                ViewBag.FileList = response.IsSuccessStatusCode ? await this.ListDropboxFolderContents(token) : new List<string>();
+                ViewBag.FileList = response.IsSuccessStatusCode ? await this.ListDropboxFolderContents(dropboxApiToken) : new List<string>();
             }
             catch (Exception exp)
             {
