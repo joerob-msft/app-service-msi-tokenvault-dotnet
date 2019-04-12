@@ -8,7 +8,7 @@
         "hostingPlanName": {
             "value": "GEN-UNIQUE"
         },
-        "tokenVaultName": {
+        "tokenStoreName": {
           "value": "GEN-UNIQUE"
       }
     }
