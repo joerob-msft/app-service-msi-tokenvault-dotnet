@@ -10,11 +10,11 @@ using Microsoft.Azure.Services.AppAuthentication;
 using Dropbox.Api;
 using Newtonsoft.Json;
 
-namespace WebAppTokenVault.Controllers
+namespace WebAppTokenStore.Controllers
 {
     public class HomeController : Controller
     {
-        const string TokenVaultResource = "https://tokenvault.azure.net";
+        const string TokenStoreResource = "https://tokenstore.azure.net";
         // static client to have connection pooling
         private static HttpClient client = new HttpClient();
 
@@ -22,18 +22,18 @@ namespace WebAppTokenVault.Controllers
         {
             var azureServiceTokenProvider = new AzureServiceTokenProvider();
 
-            // token Url - e.g. "https://tokenvaultname.westcentralus.tokenvault.azure.net/services/dropbox/tokens/sampleToken"
+            // token Url - e.g. "https://tokenstorename.westcentralus.tokenstore.azure.net/services/dropbox/tokens/sampleToken"
             string tokenResourceUrl = ConfigurationManager.AppSettings["tokenResourceUrl"];
             ViewBag.LoginLink = $"{tokenResourceUrl}/login?PostLoginRedirectUrl={this.Request.Url}";
 
             try
             {
-                // Get a token to access Token Vault
-                string tokenVaultApiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenVaultResource);
+                // Get a token to access Token Store
+                string tokenStoreApiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenStoreResource);
 
-                // Get Dropbox token from Token Vault
+                // Get Dropbox token from Token Store
                 var request = new HttpRequestMessage(HttpMethod.Post, $"{tokenResourceUrl}/accesstoken");
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenVaultApiToken);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenStoreApiToken);
                 var response = await client.SendAsync(request);
                 var dropboxApiToken = await response.Content.ReadAsStringAsync();
 
