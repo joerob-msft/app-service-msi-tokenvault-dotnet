@@ -9,6 +9,7 @@ using System.Net.Http.Headers;
 using Microsoft.Azure.Services.AppAuthentication;
 using Dropbox.Api;
 using Newtonsoft.Json;
+using WebAppTokenStore.Models;
 
 namespace WebAppTokenStore.Controllers
 {
