@@ -41,7 +41,7 @@ namespace WebAppTokenStore.Controllers
 
                 ViewBag.Secret = $"Token: {token.Value?.AccessToken}";
 
-                ViewBag.FileList = response.IsSuccessStatusCode ? await this.ListDropboxFolderContents(dropboxApiToken) : new List<string>();
+                ViewBag.FileList = response.IsSuccessStatusCode ? await this.ListDropboxFolderContents(token.Value?.AccessToken) : new List<string>();
             }
             catch (Exception exp)
             {
