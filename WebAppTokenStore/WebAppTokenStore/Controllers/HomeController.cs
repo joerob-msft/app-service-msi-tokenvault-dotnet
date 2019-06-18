@@ -32,12 +32,15 @@ namespace WebAppTokenStore.Controllers
                 string tokenStoreApiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenStoreResource);
 
                 // Get Dropbox token from Token Store
-                var request = new HttpRequestMessage(HttpMethod.Post, $"{tokenResourceUrl}/accesstoken");
+                var request = new HttpRequestMessage(HttpMethod.Post, $"{tokenResourceUrl}");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenStoreApiToken);
                 var response = await client.SendAsync(request);
                 var dropboxApiToken = await response.Content.ReadAsStringAsync();
 
-                ViewBag.Secret = $"Token: {dropboxApiToken}";
+                JObject tokenObject = JObject.Parse(responseString);
+                string token = (string)(tokenObject["Value"] as JObject).SelectToken("AccessToken");
+
+                ViewBag.Secret = $"Token: {token}";
 
                 ViewBag.FileList = response.IsSuccessStatusCode ? await this.ListDropboxFolderContents(dropboxApiToken) : new List<string>();
             }
