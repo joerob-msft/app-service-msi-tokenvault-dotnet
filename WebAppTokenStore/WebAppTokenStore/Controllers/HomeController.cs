@@ -35,12 +35,11 @@ namespace WebAppTokenStore.Controllers
                 var request = new HttpRequestMessage(HttpMethod.Post, $"{tokenResourceUrl}");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenStoreApiToken);
                 var response = await client.SendAsync(request);
-                var dropboxApiToken = await response.Content.ReadAsStringAsync();
+                var responseString = await response.Content.ReadAsStringAsync();
 
-                JObject tokenObject = JObject.Parse(responseString);
-                string token = (string)(tokenObject["Value"] as JObject).SelectToken("AccessToken");
+                var token = JsonConvert.DeserializeObject<Token>(responseString);
 
-                ViewBag.Secret = $"Token: {token}";
+                ViewBag.Secret = $"Token: {token.Value?.AccessToken}";
 
                 ViewBag.FileList = response.IsSuccessStatusCode ? await this.ListDropboxFolderContents(dropboxApiToken) : new List<string>();
             }

@@ -109,12 +109,11 @@ The relevant code is in `WebAppTokenVault/WebAppTokenVault/Controllers/HomeContr
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
 
                 var response = await client.SendAsync(request);
-
                 var responseString = await response.Content.ReadAsStringAsync();
-                JObject tokenObject = JObject.Parse(responseString);
-                string token = (string)(tokenObject["Value"] as JObject).SelectToken("AccessToken");
 
-                ViewBag.Secret = $"Token: {token}";
+                var token = JsonConvert.DeserializeObject<Token>(responseString);
+
+                ViewBag.Secret = $"Token: {token.Value?.AccessToken}";
 
                 ViewBag.FileList = response.IsSuccessStatusCode ? await this.ListDropboxFolderContents(token) : new List<string>();
             }
