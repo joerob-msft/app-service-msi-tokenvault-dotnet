@@ -9,6 +9,7 @@ using System.Net.Http.Headers;
 using Microsoft.Azure.Services.AppAuthentication;
 using Dropbox.Api;
 using Newtonsoft.Json;
+using WebAppTokenStore.Models;
 
 namespace WebAppTokenStore.Controllers
 {
@@ -32,14 +33,16 @@ namespace WebAppTokenStore.Controllers
                 string tokenStoreApiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenStoreResource);
 
                 // Get Dropbox token from Token Store
-                var request = new HttpRequestMessage(HttpMethod.Post, $"{tokenResourceUrl}/accesstoken");
+                var request = new HttpRequestMessage(HttpMethod.Post, $"{tokenResourceUrl}");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenStoreApiToken);
                 var response = await client.SendAsync(request);
-                var dropboxApiToken = await response.Content.ReadAsStringAsync();
+                var responseString = await response.Content.ReadAsStringAsync();
 
-                ViewBag.Secret = $"Token: {dropboxApiToken}";
+                var token = JsonConvert.DeserializeObject<Token>(responseString);
 
-                ViewBag.FileList = response.IsSuccessStatusCode ? await this.ListDropboxFolderContents(dropboxApiToken) : new List<string>();
+                ViewBag.Secret = $"Token: {token.Value?.AccessToken}";
+
+                ViewBag.FileList = response.IsSuccessStatusCode ? await this.ListDropboxFolderContents(token.Value?.AccessToken) : new List<string>();
             }
             catch (Exception exp)
             {

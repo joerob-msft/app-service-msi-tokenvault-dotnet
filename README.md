@@ -105,16 +105,17 @@ The relevant code is in `WebAppTokenVault/WebAppTokenVault/Controllers/HomeContr
             try
             {
                 string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenStoreResource);
-                var request = new HttpRequestMessage(HttpMethod.Post, $"{tokenResourceUrl}/accesstoken");
+                var request = new HttpRequestMessage(HttpMethod.Post, $"{tokenResourceUrl}");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
 
                 var response = await client.SendAsync(request);
+                var responseString = await response.Content.ReadAsStringAsync();
 
-                var token = await response.Content.ReadAsStringAsync();
+                var token = JsonConvert.DeserializeObject<Token>(responseString);
 
-                ViewBag.Secret = $"Token: {token}";
+                ViewBag.Secret = $"Token: {token.Value?.AccessToken}";
 
-                ViewBag.FileList = response.IsSuccessStatusCode ? await this.ListDropboxFolderContents(token) : new List<string>();
+                ViewBag.FileList = response.IsSuccessStatusCode ? await this.ListDropboxFolderContents(token.Value?.AccessToken) : new List<string>();
             }
             catch (Exception exp)
             {
