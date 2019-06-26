@@ -98,13 +98,16 @@ The relevant code is in `WebAppTokenVault/WebAppTokenVault/Controllers/HomeContr
         {
             var azureServiceTokenProvider = new AzureServiceTokenProvider();
 
-            // token Url - e.g. "https://tokenstorename.westcentralus.tokenstore.azure.net/services/dropbox/tokens/sampleToken"
-            string tokenResourceUrl = ConfigurationManager.AppSettings["tokenResourceUrl"];
+            // token Url - e.g. "https://tokenstorename.tokenstore.azure.net/services/dropbox/tokens/sampleToken"
+            var storeUrl = $"{ConfigurationManager.AppSettings["tokenResourceUrl"]}";
+            var tokenResourceUrl = $"{storeUrl}/services/dropbox/tokens/sampleToken";
+
+            string tokenStoreAudience = new Uri(tokenResourceUrl).Host;
             ViewBag.LoginLink = $"{tokenResourceUrl}/login?PostLoginRedirectUrl={this.Request.Url}";
 
             try
             {
-                string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenStoreResource);
+                string apiToken = await azureServiceTokenProvider.GetAccessTokenAsync(tokenStoreAudience);
                 var request = new HttpRequestMessage(HttpMethod.Post, $"{tokenResourceUrl}");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
 
