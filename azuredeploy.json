@@ -190,6 +190,7 @@
                     "type": "services",
                     "name": "dropbox",
                     "apiVersion": "2018-08-01-preview",
+                    "location": "[parameters('tokenStoreLocation')]",
                     "properties": {
                         "tokenParameters": {},
                         "authentication": {
