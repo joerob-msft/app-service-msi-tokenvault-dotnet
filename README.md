@@ -19,7 +19,7 @@ To deploy this sample, you need the following:
 2. **Sign in** using the link on top-right of the web site. **[Sign up](https://www.dropbox.com/register)** if you do not have an account already.
 3. [Create a new app](https://www.dropbox.com/developers/apps/create), choose **Dropbox API**, **Full Dropbox** access, and create a unique name for your app.
 4. Record the **App key** and **App secret** values for future use.
-5. Set the redirect URI to `https://[token-store-name].westcentralus.tokenstore.azure.net/redirect` where `[token-store-name]` is the name of your token store, that you will create in the next step. 
+5. Set the redirect URI to `https://[token-store-name].tokenstore.azure.net/redirect` where `[token-store-name]` is the name of your token store, that you will create in the next step. 
 
 ## Step 2: Create an App Service with a Managed Service Identity (MSI)
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjoerob-msft%2Fapp-service-msi-tokenvault-dotnet%2Fmaster%2Fazuredeploy.json" target="_blank">
@@ -54,7 +54,7 @@ At this point you have a running Web App and an integrated "Token Store" that ca
 
 |Name| Error| Resolution|
 |-----|------|------------|
-|Dropbox error (400)| Invalid redirect_uri: "https://[token-store-name].westcentralus.tokenstore.azure.net/redirect": It must exactly match one of the redirect URIs you've pre-configured for your app (including the path).| Add the above URI as a **Redirect URI** on your Dropbox app registration |
+|Dropbox error (400)| Invalid redirect_uri: "https://[token-store-name].tokenstore.azure.net/redirect": It must exactly match one of the redirect URIs you've pre-configured for your app (including the path).| Add the above URI as a **Redirect URI** on your Dropbox app registration |
 |Redirect error from Dropbox or other service| See [this issue](https://github.com/Azure/azure-tokens/issues/1) for details.| Multiple root causes: Issue #1 - Incorrect app secret - After redeploying with the correct value everything worked.|
 
 # Local debugging of web site that accesses "Token Store"
@@ -82,7 +82,7 @@ git clone https://github.com/joerob-msft/app-service-msi-tokenvault-dotnet.git
 In the Web.config file, change the tokenstorename in the key tokenResourceUrl to the one you just created. Replace **TokenStoreName** with the name of your Token Store, where `[token-store-name]` is the name of your token store, that you creatde in the previous step.
 
 ```xml   
-<add key="tokenResourceUrl" value="https://[token-store-name].westcentralus.tokenstore.azure.net/services/dropbox/tokens/sampleToken" />
+<add key="tokenResourceUrl" value="https://[token-store-name].tokenstore.azure.net/services/dropbox/tokens/sampleToken" />
 ```
 The project has the following relevant Nuget packages:
 1. `Microsoft.Azure.Services.AppAuthentication` - makes it easy to fetch access tokens for Service-to-Azure-Service authentication scenarios. 
