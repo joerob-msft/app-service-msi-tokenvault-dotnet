@@ -24,6 +24,7 @@ namespace WebAppTokenStore.Controllers
 
             // token Url - e.g. "https://tokenstorename.tokenstore.azure.net/services/dropbox/tokens/sampleToken"
             var storeUrl = $"{ConfigurationManager.AppSettings["tokenResourceUrl"]}";
+            storeUrl = storeUrl.EndsWith("/") ? storeUrl.TrimEnd('/') : storeUrl;
             var tokenResourceUrl = $"{storeUrl}/services/dropbox/tokens/sampleToken";
 
             ViewBag.LoginLink = $"{tokenResourceUrl}/login?PostLoginRedirectUrl={this.Request.Url}";
