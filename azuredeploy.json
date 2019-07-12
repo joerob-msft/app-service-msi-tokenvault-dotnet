@@ -198,8 +198,7 @@
                                 "name": "dropbox"
                             },
                             "parameters": {
-                                "clientid": "[parameters('dropboxAppKey')]",
-                                "clientsecret": "[parameters('dropboxAppSecret')]"
+                                "clientid": "[parameters('dropboxAppKey')]"
                             }
                         },
                         "displayName": "Sample Dropbox Service"
