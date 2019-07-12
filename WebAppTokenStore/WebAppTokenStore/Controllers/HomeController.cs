@@ -15,7 +15,6 @@ namespace WebAppTokenStore.Controllers
 {
     public class HomeController : Controller
     {
-        const string TokenStoreResource = "https://tokenstore.azure.net";
         // static client to have connection pooling
         private static HttpClient client = new HttpClient();
 
@@ -23,14 +22,17 @@ namespace WebAppTokenStore.Controllers
         {
             var azureServiceTokenProvider = new AzureServiceTokenProvider();
 
-            // token Url - e.g. "https://tokenstorename.westcentralus.tokenstore.azure.net/services/dropbox/tokens/sampleToken"
-            string tokenResourceUrl = ConfigurationManager.AppSettings["tokenResourceUrl"];
+            // token Url - e.g. "https://tokenstorename.tokenstore.azure.net/services/dropbox/tokens/sampleToken"
+            var storeUrl = $"{ConfigurationManager.AppSettings["tokenResourceUrl"]}";
+            storeUrl = storeUrl.EndsWith("/") ? storeUrl.TrimEnd('/') : storeUrl;
+            var tokenResourceUrl = $"{storeUrl}/services/dropbox/tokens/sampleToken";
+
             ViewBag.LoginLink = $"{tokenResourceUrl}/login?PostLoginRedirectUrl={this.Request.Url}";
 
             try
             {
                 // Get a token to access Token Store
-                string tokenStoreApiToken = await azureServiceTokenProvider.GetAccessTokenAsync(TokenStoreResource);
+                string tokenStoreApiToken = await azureServiceTokenProvider.GetAccessTokenAsync(storeUrl);
 
                 // Get Dropbox token from Token Store
                 var request = new HttpRequestMessage(HttpMethod.Post, $"{tokenResourceUrl}");
