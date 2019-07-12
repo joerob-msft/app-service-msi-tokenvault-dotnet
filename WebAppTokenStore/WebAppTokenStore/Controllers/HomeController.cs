@@ -26,13 +26,12 @@ namespace WebAppTokenStore.Controllers
             var storeUrl = $"{ConfigurationManager.AppSettings["tokenResourceUrl"]}";
             var tokenResourceUrl = $"{storeUrl}/services/dropbox/tokens/sampleToken";
 
-            string tokenStoreAudience = new Uri(tokenResourceUrl).Host;
             ViewBag.LoginLink = $"{tokenResourceUrl}/login?PostLoginRedirectUrl={this.Request.Url}";
 
             try
             {
                 // Get a token to access Token Store
-                string tokenStoreApiToken = await azureServiceTokenProvider.GetAccessTokenAsync(tokenStoreAudience);
+                string tokenStoreApiToken = await azureServiceTokenProvider.GetAccessTokenAsync(storeUrl);
 
                 // Get Dropbox token from Token Store
                 var request = new HttpRequestMessage(HttpMethod.Post, $"{tokenResourceUrl}");
