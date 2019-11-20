@@ -176,10 +176,13 @@
                             "objectId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').principalId]"
                         },
                         "permissions": [
-                            "Get",
-                            "List",
-                            "CreateOrUpdate",
-                            "Delete"
+                            "ListIdentityProvider",
+                            "GetService",
+                            "CreateOrUpdateService",
+                            "CreateOrUpdateService",
+                            "GetToken",
+                            "CreateOrUpdateToken",
+                            "DeleteToken"
                         ]
                     },
                     "dependsOn": [
