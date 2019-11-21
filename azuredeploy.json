@@ -169,8 +169,8 @@
                     "apiVersion": "2018-08-01-preview",
                     "properties": {
                         "principal": {
-                            "tenantId": "[reference([concat(resourceId('Microsoft.Web/sites', parameters('webSiteName')),'/providers/Microsoft.ManagedIdentity/Identities/default')]), '2015-08-31-PREVIEW').tenantId]",
-                            "objectId": "[reference([concat(resourceId('Microsoft.Web/sites', parameters('webSiteName')),'/providers/Microsoft.ManagedIdentity/Identities/default')]), '2015-08-31-PREVIEW').principalId]"
+                            "tenantId": "[reference(concat(resourceId('Microsoft.Web/sites', parameters('webSiteName')),'/providers/Microsoft.ManagedIdentity/Identities/default')), '2015-08-31-PREVIEW').tenantId]",
+                            "objectId": "[reference(concat(resourceId('Microsoft.Web/sites', parameters('webSiteName')),'/providers/Microsoft.ManagedIdentity/Identities/default')), '2015-08-31-PREVIEW').principalId]"
                         },
                         "permissions": [
                             "ListIdentityProvider",
