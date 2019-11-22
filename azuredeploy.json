@@ -226,18 +226,5 @@
                 }
             ]
         }
-    ],
-    "outputs": {
-        "DropBoxLoginLink": {
-            "type": "string",
-            "value": "[reference(concat('Microsoft.Token/stores/', parameters('tokenStoreName'), '/services/dropbox/tokens/sampleToken'), '2018-08-01-preview').loginUri]"
-        },
-        "TokenVaultRedirectUri": {
-            "type": "string", 
-            "value": "[reference(concat('Microsoft.Token/stores/', parameters('tokenStoreName')), '2018-08-01-preview').redirectUrl]", 
-            "metadata":{
-                "description": "This url must be whitelisted as valid redirect Url in the SAAS registration - e.g. https://www.dropbox.com/developers/apps."
-            }
-        }
-    }
+    ]
 }
