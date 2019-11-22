@@ -89,6 +89,9 @@
             "defaultValue": "master"
         }
     },
+    "variables": {
+        "webAppResourceId": "[resourceId('Microsoft.Web/sites/', parameters('webSiteName'))]"     
+    },
     "resources": [
         {
             "apiVersion": "2016-03-01",
@@ -169,8 +172,8 @@
                     "apiVersion": "2018-08-01-preview",
                     "properties": {
                         "principal": {
-                            "tenantId": "[reference(concat(resourceId('Microsoft.Web/sites', parameters('webSiteName')), '/providers/Microsoft.ManagedIdentity/Identities/default')).tenantId]",
-                            "objectId": "[reference(concat(resourceId('Microsoft.Web/sites', parameters('webSiteName')), '/providers/Microsoft.ManagedIdentity/Identities/default')).principalId]"
+                            "tenantId": "[reference(variables('webAppResourceId'), '2018-02-01', 'Full').identity.tenantId]",
+                            "objectId": "[reference(variables('webAppResourceId'), '2018-02-01', 'Full').identity.principalId]"
                         },
                         "permissions": [
                             "ListIdentityProvider",
