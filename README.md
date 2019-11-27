@@ -1,3 +1,7 @@
+# IMPORTANT - DEPRECATED
+This simple getting started repo scenario is no longer supported.
+Please see the advanced repo for an example. [Token Store Getting Started](https://github.com/joerob-msft/app-service-tokenvault-advanced)
+
 ---
 services: app-service, token-store
 platforms: dotnet
